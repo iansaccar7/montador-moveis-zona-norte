@@ -1,0 +1,491 @@
+/* Linguagem de manual de montagem: traço preto fino, peças brancas, setas tracejadas e passos numerados. */
+.iso {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.iso polygon {
+  stroke: var(--ink);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+}
+.iso .f-front { fill: #fff; }
+.iso .f-top { fill: #f6f5f1; }
+.iso .f-side { fill: #e7e6e0; }
+.iso .handle {
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.iso .path {
+  stroke: var(--accent);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+}
+.iso .target { fill: var(--accent); }
+
+/* Topo: o desenho no lugar do quadro antigo, com a lupa do parafuso */
+.manual-figure {
+  position: relative;
+  padding: 28px 24px;
+  background: #fbfaf7 !important;
+  background-image:
+    linear-gradient(rgba(27, 29, 31, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 29, 31, 0.05) 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+}
+.callout {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  display: grid;
+  place-items: center;
+  width: 88px;
+  height: 88px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0;
+  transform: scale(0.9);
+  transition:
+    opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+    transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.manual-figure.done .callout {
+  opacity: 1;
+  transform: none;
+}
+.callout svg {
+  width: 60px;
+  height: 60px;
+  stroke: var(--ink);
+  stroke-width: 1.6;
+}
+.callout .screw {
+  transform-origin: 32px 32px;
+  fill: #fff;
+}
+.manual-figure.done .screw {
+  animation: aperta 900ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+@keyframes aperta {
+  from { transform: rotate(-270deg); }
+  to { transform: rotate(0); }
+}
+.callout b {
+  position: absolute;
+  top: -10px;
+  right: -8px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: #fff;
+  font: 700 12px Figtree, sans-serif;
+}
+
+/* Passo a passo com o desenho preso enquanto os passos rolam */
+.manual-stage {
+  display: grid;
+  gap: 24px;
+}
+.manual-sticky {
+  position: sticky;
+  top: 96px;
+  z-index: 1;
+  align-self: start;
+  padding: 16px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #fbfaf7;
+}
+.manual-sticky .iso {
+  max-height: 44vh;
+}
+.manual-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.manual-steps li {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 4px 18px;
+  min-height: 52vh;
+  align-content: center;
+  opacity: 0.35;
+  transition: opacity 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.manual-steps li.on { opacity: 1; }
+.manual-steps .n {
+  grid-row: span 2;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  font: 600 22px var(--display);
+  transition:
+    background-color 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+    color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+.manual-steps li.on .n {
+  background: var(--ink);
+  color: #fff;
+}
+.manual-steps p { max-width: 36ch; }
+
+/* Formulário como lista de peças */
+.fields { counter-reset: peca; }
+.field label::before {
+  counter-increment: peca;
+  content: counter(peca, decimal-leading-zero);
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  margin-right: 10px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Nível de bolha */
+.level {
+  margin-top: 32px;
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  touch-action: pan-y;
+}
+.level-tube {
+  position: relative;
+  width: min(320px, 100%);
+  height: 44px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: #e6efe6;
+  overflow: hidden;
+}
+.level-tube::before,
+.level-tube::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  width: 1.5px;
+  background: var(--ink);
+  left: calc(50% - 22px);
+}
+.level-tube::after { left: calc(50% + 21px); }
+.level-bubble {
+  position: absolute;
+  top: 9px;
+  left: calc(50% - 16px);
+  width: 32px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: #f7fbf2;
+  box-shadow: inset 0 -3px 6px rgba(31, 86, 98, 0.25);
+  transition: background-color 0.3s ease;
+}
+.level.aligned .level-bubble { background: #fff; box-shadow: inset 0 -3px 6px rgba(31, 86, 98, 0.45), 0 0 0 2px var(--accent); }
+.level-label {
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--muted);
+}
+.level.aligned .level-label { color: var(--accent); }
+
+@media (min-width: 960px) {
+  .manual-stage {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 80px;
+  }
+  .manual-sticky {
+    top: 128px;
+    padding: 32px;
+  }
+  .manual-sticky .iso { max-height: 62vh; }
+  .manual-steps li { min-height: 70vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .manual-steps li { opacity: 1; }
+  .callout { opacity: 1; transform: none; }
+}
+
+/* ---------- Livreto: cada seção é uma folha do manual sobre a mesa ---------- */
+body {
+  background: #e4e1d9;
+}
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(27, 29, 31, 0.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+.top {
+  background: #fff;
+  border-bottom: 1.5px solid var(--ink);
+}
+[data-page] {
+  position: relative;
+  width: min(1240px, calc(100% - 20px));
+  margin: 14px auto;
+  padding-top: 0 !important;
+  background: #fff;
+  border: 1.5px solid var(--ink);
+  box-shadow: 0 1px 0 #fff, 0 30px 50px -36px rgba(27, 29, 31, 0.45);
+}
+[data-page] > .wrap {
+  width: calc(100% - 40px);
+  padding-top: 40px;
+}
+.contact[data-page] {
+  background: var(--ink);
+  color: #fff;
+}
+/* marcas de corte nos cantos */
+[data-page]::before,
+[data-page]::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+[data-page]::before {
+  top: 44px;
+  left: 10px;
+  border-top: 1.5px solid currentColor;
+  border-left: 1.5px solid currentColor;
+}
+[data-page]::after {
+  right: 10px;
+  bottom: 10px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+}
+.page-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 18px;
+  border-bottom: 1.5px solid currentColor;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.page-strip span:nth-child(2) {
+  display: none;
+}
+
+/* Títulos com o número da página num círculo grande */
+[data-page] h2 {
+  font-size: clamp(40px, 6.4vw, 84px);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+}
+.section-heading > div,
+.section-copy,
+.about-grid > div:first-child {
+  position: relative;
+}
+[data-page] .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--ink);
+}
+.page-num {
+  display: grid;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 18px;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  font: 600 28px var(--display);
+  letter-spacing: -0.04em;
+}
+.contact .page-num {
+  border-color: #fff;
+}
+
+/* Capa */
+.hero[data-page] .hero-grid {
+  align-items: center;
+}
+.hero[data-page] h1 {
+  font-size: clamp(46px, 8vw, 104px);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+}
+.hero-bottom {
+  border-top: 1.5px solid var(--ink) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px !important;
+}
+.hero-bottom span::before {
+  content: "✓" !important;
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px !important;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  color: var(--ink) !important;
+  font-size: 11px;
+}
+.button {
+  border-radius: 999px;
+  border-width: 1.5px;
+}
+.text-link {
+  border-bottom-width: 1.5px;
+}
+
+/* Agendamento como folha de pedido */
+.form-box {
+  border: 1.5px solid var(--ink) !important;
+  background: #fff !important;
+}
+input,
+select {
+  border: 0 !important;
+  border-bottom: 1.5px solid var(--ink) !important;
+  background: transparent !important;
+  padding-left: 0 !important;
+}
+.box-note {
+  border: 1.5px solid var(--ink) !important;
+  padding: 16px !important;
+  background: #fff8e1;
+  font-weight: 600;
+}
+.box-note svg {
+  width: 30px !important;
+  height: 30px !important;
+  color: var(--ink) !important;
+  stroke-width: 1.6;
+}
+
+/* Montagens como figuras numeradas */
+.photo-slot {
+  position: relative;
+  background: #fbfaf7 !important;
+  background-image:
+    linear-gradient(rgba(27, 29, 31, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 29, 31, 0.05) 1px, transparent 1px) !important;
+  background-size: 20px 20px !important;
+  border: 1.5px solid var(--ink) !important;
+}
+.photo-slot::before {
+  content: attr(data-fig);
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* Avaliações como notas numeradas */
+.review-grid {
+  counter-reset: nota;
+}
+.review-grid figure {
+  counter-increment: nota;
+  position: relative;
+  border: 1.5px solid var(--ink) !important;
+  padding: 56px 22px 22px !important;
+  background: #fff;
+}
+.review-grid figure::before {
+  content: "Nota " counter(nota);
+  position: absolute;
+  top: 16px;
+  left: 22px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Última página: fim com o visto */
+.contact[data-page] p,
+.contact[data-page] .eyebrow {
+  color: rgba(255, 255, 255, 0.72);
+}
+.contact[data-page] h2 {
+  color: #fff;
+}
+.contact[data-page] .button {
+  background: #fff;
+  color: var(--ink);
+  border-color: #fff;
+}
+.contact[data-page] .phone {
+  color: #fff;
+}
+.contact[data-page] .page-strip span:last-child::after {
+  content: " · fim";
+}
+footer {
+  border-top: 0 !important;
+}
+
+@media (min-width: 960px) {
+  [data-page] {
+    width: min(1240px, calc(100% - 64px));
+    margin: 28px auto;
+  }
+  [data-page] > .wrap {
+    width: calc(100% - 96px);
+    padding-top: 56px;
+  }
+  .page-strip span:nth-child(2) {
+    display: inline;
+  }
+  /* folhas soltas, levemente tortas (o passo a passo fica reto por causa do desenho preso) */
+  [data-page="02"] { transform: rotate(-0.35deg); }
+  [data-page="03"] { transform: rotate(0.3deg); }
+  [data-page="05"] { transform: rotate(-0.3deg); }
+  [data-page="06"] { transform: rotate(0.35deg); }
+  .review-grid figure:nth-child(2) {
+    margin-top: 40px;
+  }
+}
+.section-copy h2 {
+  font-size: clamp(38px, 4.6vw, 64px);
+}
+/* Visto de montagem concluída na última página */
+.contact[data-page] .contact-actions::before {
+  content: "✓";
+  display: grid;
+  place-items: center;
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 8px;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  color: #fff;
+  font: 600 38px var(--display);
+}
